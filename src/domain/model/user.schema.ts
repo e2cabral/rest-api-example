@@ -11,14 +11,14 @@ const UserSchema = new Schema({
 
 UserSchema
     .methods
-    .encryptPassword = async (password: string): Promise<string> => {
+    .encryptPassword = async function (password: string): Promise<string> {
         const salt = await bcrypt.genSalt(5);
         return await bcrypt.hash(password, salt);
     }
 
 UserSchema
     .methods
-    .validPassword = async (candidatePassword: string): Promise<boolean> => {
+    .validPassword = async function (candidatePassword: string): Promise<boolean> {
         try {
             if (this && this !== undefined && this !== null) {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
