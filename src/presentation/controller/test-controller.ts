@@ -12,8 +12,20 @@ class TestController {
         res: Response
     ): Promise<void> {
         try {
+            if (!req.user) {
+                throw new HttpError(
+                    'You\'re Not Authorized',
+                    'You\'re not authorized to see posts',
+                    401,
+                    []
+                );
+            }
             const posts = await Post
-                .find()
+                .find({
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    user: { $in: [...req.user.following, req.user.id] }
+                })
                 .populate('user')
                 .sort({ createdAt: -1 });
             res.send(posts);
@@ -30,7 +42,10 @@ class TestController {
     ): Promise<void> {
         try {
             const post = await Post.findOne({
-                _id: req.params.id
+                _id: req.params.id,
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                user: { $in: [...req.user.following, req.user.id] }
             }).populate('user');
             res.send(post);
         } catch (e) {
@@ -78,7 +93,8 @@ class TestController {
                     []
                 );
             }
-
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             const userAreEqual = req.user === undefined || post.get('user') !== req.user.id;
 
             if (!userAreEqual) {
@@ -117,7 +133,8 @@ class TestController {
                     []
                 );
             }
-
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             const userAreEqual = req.user === undefined || post.get('user') !== req.user.id;
 
             if (!userAreEqual) {
